@@ -1,0 +1,8 @@
+/dist
+/node_modules
+package.json
+yarn.lock
+.prettierrc
+.eslintrc.js
+tsconfig.build.json
+tsconfig.json
