@@ -1,7 +1,7 @@
 # AniList ⛩
 
 ## Database schema:
-![](https://i.ibb.co/j4N9hch/image.png)
+![](https://i.ibb.co/nb8MJ8W/image.png)
 
 ## Features:
 

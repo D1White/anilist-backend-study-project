@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { ListModule } from './list/list.module';
 import { AnimeModule } from './anime/anime.module';
@@ -11,6 +12,7 @@ import { AnimeModule } from './anime/anime.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    MongooseModule.forRoot(process.env.MONGODB_URL),
     UserModule,
     ListModule,
     AnimeModule,

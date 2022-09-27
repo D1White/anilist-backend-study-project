@@ -7,4 +7,7 @@ export interface IUser {
   role: UserRoles;
 }
 
-export type UserRoles = 'user' | 'admin';
+export enum UserRoles {
+  user = 'user',
+  admin = 'admin',
+}
