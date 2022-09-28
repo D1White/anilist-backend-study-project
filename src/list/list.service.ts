@@ -22,16 +22,13 @@ export class ListService {
     for (const listKey of Object.keys(ListsEnum)) {
       try {
         const anime = await getAnimeList(list[listKey]);
-
-        if (anime?.length > 0) {
-          fullLists.set(listKey, anime);
-        }
+        fullLists.set(listKey, anime);
       } catch (error) {
         throw new Error(error);
       }
     }
 
-    return { ...list, ...Object.fromEntries(fullLists) };
+    return { _id: list._id, user_id: list.user_id, ...Object.fromEntries(fullLists) };
   }
 
   async findList(id: string) {
