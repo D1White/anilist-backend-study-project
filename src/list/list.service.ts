@@ -1,29 +1,22 @@
+import { Model } from 'mongoose';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { ErrorsEnum, getAnimeList } from 'utils/index';
+import { IAnime } from 'anime/types';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-import { IList, ListsEnum } from './types';
-import { ErrorsEnum, getEntityById, getAnimeList } from 'utils/index';
-import { IAnime } from 'anime/types';
+import { List, ListDocument } from './schemas/list.schema';
+import { ListsEnum } from './types';
 
 @Injectable()
 export class ListService {
-  public lists: IList[] = [
-    {
-      id: 1,
-      user_id: 1,
-      current: [1234],
-      planning: [],
-      completed: [],
-      paused: [],
-      dropped: [],
-    },
-  ];
+  constructor(@InjectModel(List.name) private listModel: Model<ListDocument>) {}
 
-  findAll() {
-    return this.lists;
+  async findAll() {
+    return this.listModel.find().exec();
   }
 
-  async getFullList(list: IList) {
+  async getFullList(list: ListDocument) {
     const fullLists = new Map<string, IAnime[]>();
 
     for (const listKey of Object.keys(ListsEnum)) {
@@ -41,11 +34,31 @@ export class ListService {
     return { ...list, ...Object.fromEntries(fullLists) };
   }
 
-  async findOne(id: number, full: boolean) {
-    const [list] = getEntityById<IList>(id, this.lists);
+  async findList(id: string) {
+    const list = await this.listModel.findById(id).exec();
 
     if (!list) {
-      throw new HttpException(ErrorsEnum.listNotFound, HttpStatus.NOT_FOUND);
+      throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
+    }
+
+    return list;
+  }
+
+  async findOne(id: string, full: boolean) {
+    const list = await this.findList(id);
+
+    if (full) {
+      return await this.getFullList(list);
+    }
+
+    return list;
+  }
+
+  async findByUser(userId: string, full: boolean) {
+    const list = await this.listModel.findOne({ user_id: userId }).exec();
+
+    if (!list) {
+      throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
     }
 
     if (full) {
@@ -55,45 +68,18 @@ export class ListService {
     return list;
   }
 
-  async findByUser(id: number, full: boolean) {
-    const list = this.lists.find((list) => list.user_id === id);
-
-    if (!list) {
-      throw new HttpException(ErrorsEnum.listByUserNotFound, HttpStatus.NOT_FOUND);
-    }
-
-    if (full) {
-      return await this.getFullList(list);
-    }
-
-    return list;
+  async create(createListDto: CreateListDto) {
+    const createdList = new this.listModel(createListDto);
+    return createdList.save();
   }
 
-  create(createListDto: CreateListDto) {
-    const newList = { id: Date.now(), ...createListDto };
-    this.lists.push(newList);
-    return newList;
+  async update(id: string, updateListDto: UpdateListDto) {
+    await this.findList(id);
+    return this.listModel.findByIdAndUpdate(id, updateListDto, { new: true }).exec();
   }
 
-  update(id: number, updateListDto: UpdateListDto) {
-    const [list, filterLists] = getEntityById<IList>(id, this.lists);
-
-    if (!list) {
-      throw new HttpException(ErrorsEnum.listNotFound, HttpStatus.NOT_FOUND);
-    }
-
-    const updatedList = { ...list, ...updateListDto };
-    this.lists = [...filterLists, updatedList];
-    return updatedList;
-  }
-
-  remove(id: number) {
-    const [list, filterLists] = getEntityById<IList>(id, this.lists);
-
-    if (!list) {
-      throw new HttpException(ErrorsEnum.listNotFound, HttpStatus.NOT_FOUND);
-    }
-
-    this.lists = filterLists;
+  async remove(id: string) {
+    await this.findList(id);
+    return this.listModel.findByIdAndDelete(id);
   }
 }
