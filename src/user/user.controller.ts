@@ -12,7 +12,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FindOneParams } from 'utils/params';
+import { FindOneMongoParams } from 'utils/params';
 
 @Controller('user')
 export class UserController {
@@ -24,8 +24,8 @@ export class UserController {
   }
 
   @Get(':id')
-  findOne(@Param() { id }: FindOneParams) {
-    return this.userService.findOne(+id);
+  findOne(@Param() { id }: FindOneMongoParams) {
+    return this.userService.findOne(id);
   }
 
   @Post()
@@ -34,13 +34,13 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param() { id }: FindOneParams, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  update(@Param() { id }: FindOneMongoParams, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param() { id }: FindOneParams) {
-    return this.userService.remove(+id);
+  remove(@Param() { id }: FindOneMongoParams) {
+    return this.userService.remove(id);
   }
 }

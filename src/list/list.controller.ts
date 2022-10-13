@@ -13,7 +13,7 @@ import {
 import { ListService } from './list.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-import { FindOneParams, ListQuery } from 'utils/params';
+import { FindOneMongoParams, ListQuery } from 'utils/params';
 
 @Controller('list')
 export class ListController {
@@ -30,23 +30,23 @@ export class ListController {
   }
 
   @Get(':id')
-  findOne(@Param() { id }: FindOneParams, @Query() { full }: ListQuery) {
-    return this.listService.findOne(+id, full === 'true');
+  findOne(@Param() { id }: FindOneMongoParams, @Query() { full }: ListQuery) {
+    return this.listService.findOne(id, full === 'true');
   }
 
   @Get('user/:id')
-  findByUser(@Param() { id }: FindOneParams, @Query() { full }: ListQuery) {
-    return this.listService.findByUser(+id, full === 'true');
+  findByUser(@Param() { id }: FindOneMongoParams, @Query() { full }: ListQuery) {
+    return this.listService.findByUser(id, full === 'true');
   }
 
   @Patch(':id')
-  update(@Param() { id }: FindOneParams, @Body() updateListDto: UpdateListDto) {
-    return this.listService.update(+id, updateListDto);
+  update(@Param() { id }: FindOneMongoParams, @Body() updateListDto: UpdateListDto) {
+    return this.listService.update(id, updateListDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param() { id }: FindOneParams) {
-    return this.listService.remove(+id);
+  remove(@Param() { id }: FindOneMongoParams) {
+    return this.listService.remove(id);
   }
 }

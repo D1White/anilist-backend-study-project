@@ -1,12 +1,12 @@
-import { IsEnum, IsNumber } from 'class-validator';
+import { IsEnum, IsNumber, IsMongoId } from 'class-validator';
 import { ListsEnum } from 'list/types';
 
 export class AnimeActionDto {
   @IsNumber()
   id: number;
 
-  @IsNumber()
-  list_id: number;
+  @IsMongoId()
+  list_id: string;
 
   @IsEnum(ListsEnum, {
     message: 'The list takes one of the values: current, planning, completed, paused, dropped',

@@ -1,61 +1,51 @@
+import { Model } from 'mongoose';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { ErrorsEnum } from 'utils/index';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { IUser } from './types';
-import { ErrorsEnum, getEntityById } from 'utils/index';
+import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UserService {
-  private users: IUser[] = [
-    {
-      id: 1,
-      name: 'Test',
-      email: 'tes@gamil.com',
-      password: 'qwerty',
-      avatar: null,
-      role: 'admin',
-    },
-  ];
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  findAll() {
-    return this.users;
+  async findAll() {
+    return this.userModel.find().exec();
   }
 
-  findOne(id: number) {
-    const [user] = getEntityById<IUser>(id, this.users);
+  async findOne(id: string) {
+    const user = await this.userModel.findById(id).exec();
 
     if (!user) {
-      throw new HttpException(ErrorsEnum.userNotFound, HttpStatus.NOT_FOUND);
+      throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
     }
 
     return user;
   }
 
-  create(createUserDto: CreateUserDto) {
-    const newUser = { id: Date.now(), ...createUserDto };
-    this.users.push(newUser);
-    return newUser;
+  async create(createUserDto: CreateUserDto) {
+    const createdUser = new this.userModel(createUserDto);
+    return createdUser.save();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    const [user, filterUsers] = getEntityById<IUser>(id, this.users);
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userModel.findById(id).exec();
 
     if (!user) {
-      throw new HttpException(ErrorsEnum.userNotFound, HttpStatus.NOT_FOUND);
+      throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
     }
 
-    const updatedUser = { ...user, ...updateUserDto };
-    this.users = [...filterUsers, updatedUser];
-    return updatedUser;
+    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
   }
 
-  remove(id: number) {
-    const [user, filterUsers] = getEntityById<IUser>(id, this.users);
+  async remove(id: string) {
+    const user = await this.userModel.findById(id).exec();
 
     if (!user) {
-      throw new HttpException(ErrorsEnum.userNotFound, HttpStatus.NOT_FOUND);
+      throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
     }
 
-    this.users = filterUsers;
+    return this.userModel.findByIdAndDelete(id);
   }
 }
