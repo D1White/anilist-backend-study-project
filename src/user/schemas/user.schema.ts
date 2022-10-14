@@ -14,7 +14,7 @@ export class User {
   @Prop({ required: true, type: mongoose.SchemaTypes.String })
   name: string;
 
-  @Prop({ required: true, type: mongoose.SchemaTypes.String })
+  @Prop({ required: true, type: mongoose.SchemaTypes.String, unique: true })
   email: string;
 
   @Prop({ required: true, type: mongoose.SchemaTypes.String })

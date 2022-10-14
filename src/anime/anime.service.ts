@@ -1,17 +1,16 @@
 import { Model } from 'mongoose';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { List, ListDocument } from 'list/schemas/list.schema';
+import { ListService } from 'list/list.service';
 import { ListsEnum } from 'list/types';
 import { ErrorsEnum } from 'utils/errors';
 import { AnimeActionDto } from './dto/anime-action.dto';
 
 @Injectable()
 export class AnimeService {
-  constructor(@InjectModel(List.name) private listModel: Model<ListDocument>) {}
+  constructor(private listService: ListService) {}
 
   async addOrMove({ id, list_id, list }: AnimeActionDto) {
-    const currentList = await this.listModel.findById(list_id).exec();
+    const currentList = await this.listService.listModel.findById(list_id).exec();
 
     if (!currentList) {
       throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
@@ -26,7 +25,7 @@ export class AnimeService {
 
     filterList.set(list, [...filterList.get(list), id]);
 
-    return this.listModel
+    return this.listService.listModel
       .findByIdAndUpdate(list_id, Object.fromEntries(filterList), { new: true })
       .exec();
   }

@@ -1,14 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import mongoose from 'mongoose';
-import { User } from 'user/schemas/user.schema';
 
 export type ListDocument = List & Document;
 
 @Schema()
 export class List {
   @Prop({ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'User' })
-  user_id: User;
+  user_id: string;
 
   @Prop({ required: true, type: [mongoose.SchemaTypes.Number] })
   current: number[];

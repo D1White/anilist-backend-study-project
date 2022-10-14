@@ -26,6 +26,8 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto) {
+    await this.userExists(createUserDto.email);
+
     const hashPassword = await hash(createUserDto.password, 7);
     const createdUser = new this.userModel({ ...createUserDto, password: hashPassword });
     return createdUser.save();
@@ -36,6 +38,10 @@ export class UserService {
 
     if (!user) {
       throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
+    }
+
+    if (updateUserDto?.email && updateUserDto?.email !== user.email) {
+      await this.userExists(updateUserDto.email);
     }
 
     const hashPassword = await hash(updateUserDto.password, 7);
@@ -53,5 +59,12 @@ export class UserService {
     }
 
     return this.userModel.findByIdAndDelete(id);
+  }
+
+  async userExists(email: string) {
+    const user = await this.userModel.findOne({ email }).exec();
+    if (user) {
+      throw new HttpException(ErrorsEnum.userExists, HttpStatus.FORBIDDEN);
+    }
   }
 }
