@@ -3,7 +3,11 @@ import { Document } from 'mongoose';
 import mongoose from 'mongoose';
 import { UserRoles } from '../types';
 
+export type SecureUserDocument = Omit<UserDocument, 'password'>;
+
 export type UserDocument = User & Document;
+
+export type SecureUser = Omit<User, 'password'>;
 
 @Schema()
 export class User {

@@ -8,11 +8,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindOneMongoParams } from 'utils/params';
+import { AclGuard, JwtAuthGuard } from 'auth/guards';
 
 @Controller('user')
 export class UserController {
@@ -23,6 +25,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard, AclGuard)
   @Get(':id')
   findOne(@Param() { id }: FindOneMongoParams) {
     return this.userService.findOne(id);
