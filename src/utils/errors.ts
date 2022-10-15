@@ -4,4 +4,5 @@ export enum ErrorsEnum {
   notFound = 'Not Found',
   dbValidationError = 'Database validation error',
   internalError = 'Internal Error',
+  userExists = 'User with this email address already exists',
 }

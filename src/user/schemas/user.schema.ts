@@ -3,14 +3,18 @@ import { Document } from 'mongoose';
 import mongoose from 'mongoose';
 import { UserRoles } from '../types';
 
+export type SecureUserDocument = Omit<UserDocument, 'password'>;
+
 export type UserDocument = User & Document;
+
+export type SecureUser = Omit<User, 'password'>;
 
 @Schema()
 export class User {
   @Prop({ required: true, type: mongoose.SchemaTypes.String })
   name: string;
 
-  @Prop({ required: true, type: mongoose.SchemaTypes.String })
+  @Prop({ required: true, type: mongoose.SchemaTypes.String, unique: true })
   email: string;
 
   @Prop({ required: true, type: mongoose.SchemaTypes.String })

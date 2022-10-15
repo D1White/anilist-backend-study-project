@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { hash } from 'bcrypt';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ErrorsEnum } from 'utils/index';
@@ -8,7 +9,7 @@ import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) public userModel: Model<UserDocument>) {}
 
   async findAll() {
     return this.userModel.find().exec();
@@ -25,7 +26,10 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    const createdUser = new this.userModel(createUserDto);
+    await this.userExists(createUserDto.email);
+
+    const hashPassword = await hash(createUserDto.password, 7);
+    const createdUser = new this.userModel({ ...createUserDto, password: hashPassword });
     return createdUser.save();
   }
 
@@ -36,7 +40,15 @@ export class UserService {
       throw new HttpException(ErrorsEnum.notFound, HttpStatus.NOT_FOUND);
     }
 
-    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
+    if (updateUserDto?.email && updateUserDto?.email !== user.email) {
+      await this.userExists(updateUserDto.email);
+    }
+
+    const hashPassword = await hash(updateUserDto.password, 7);
+
+    return this.userModel
+      .findByIdAndUpdate(id, { ...updateUserDto, password: hashPassword }, { new: true })
+      .exec();
   }
 
   async remove(id: string) {
@@ -47,5 +59,12 @@ export class UserService {
     }
 
     return this.userModel.findByIdAndDelete(id);
+  }
+
+  async userExists(email: string) {
+    const user = await this.userModel.findOne({ email }).exec();
+    if (user) {
+      throw new HttpException(ErrorsEnum.userExists, HttpStatus.FORBIDDEN);
+    }
   }
 }

@@ -10,7 +10,7 @@ import { ListsEnum } from './types';
 
 @Injectable()
 export class ListService {
-  constructor(@InjectModel(List.name) private listModel: Model<ListDocument>) {}
+  constructor(@InjectModel(List.name) public listModel: Model<ListDocument>) {}
 
   async findAll() {
     return this.listModel.find().exec();
