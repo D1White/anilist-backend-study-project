@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 import { Error } from 'mongoose';
 import { ErrorsEnum } from 'utils/errors';
+import { logger } from 'utils/winston/logger';
 
 enum MongoErrors {
   MongooseError = 'MongooseError',
@@ -52,7 +53,7 @@ export class MongoExceptionFilter implements ExceptionFilter {
         break;
       }
     }
-
+    logger.error(`MongoException ${exception.name}`, { exception });
     response.status(error.statusCode).json(error);
   }
 }
