@@ -8,6 +8,6 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new MongoExceptionFilter());
-  await app.listen(process.env.port);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
